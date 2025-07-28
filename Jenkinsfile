@@ -22,8 +22,7 @@ pipeline {
 
         stage('Permissions Fix') {
             steps {
-                bat 'docker exec --user root app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache'
-
+              bat 'docker exec --user root app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
 
             }
         }
