@@ -20,14 +20,13 @@ pipeline {
             }
         }
 
-        stage('Wait for MySQL to be Ready') {
+      stage('Wait for MySQL to be Ready') {
     steps {
-        bat '''
-            echo Waiting for MySQL to be ready...
-            docker exec db01 sh -c "until mysqladmin ping -h db01 --silent; do sleep 2; done"
-        '''
+        echo 'Waiting for MySQL to be ready...'
+        bat 'docker exec db01 bash -c "until mysql -h db01 -u root -proot -e \\"SELECT 1\\"; do echo Waiting for MySQL...; sleep 2; done"'
     }
 }
+
 
 
         stage('Composer Install') {
