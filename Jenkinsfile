@@ -19,17 +19,17 @@ pipeline {
                 bat 'docker exec app01 composer install'
             }
         }
-        stage('Permissions Fix (optional)') {
+
+        stage('Permissions Fix') {
             steps {
                 bat 'docker exec app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache'
             }
         }
 
-
         stage('Environment Setup') {
             steps {
                 bat '''
-                    docker exec app01 cp .env.example .env || true
+                    docker exec app01 cp .env.example .env
                     docker exec app01 php artisan key:generate
                 '''
             }
@@ -43,7 +43,7 @@ pipeline {
 
         stage('Permissions Fix (optional)') {
             steps {
-                bat 'docker exec app01 chmod -R 775 storage bootstrap/cache'
+                bat 'docker exec app01 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache'
             }
         }
     }
