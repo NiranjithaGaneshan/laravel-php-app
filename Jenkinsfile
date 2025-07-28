@@ -17,8 +17,8 @@ pipeline {
         stage('Wait for MySQL') {
             steps {
                 script {
-                    echo 'Waiting 30 seconds for MySQL...'
-                    sleep(time: 30, unit: 'SECONDS')
+                    echo 'Waiting 60 seconds for MySQL...'
+                    sleep(time: 60, unit: 'SECONDS')
                 }
             }
         }
