@@ -10,19 +10,19 @@ pipeline {
 
         stage('Build and Start Containers') {
             steps {
-                sh 'docker-compose up -d --build'
+                bat 'docker-compose up -d --build'
             }
         }
 
         stage('Composer Install') {
             steps {
-                sh 'docker exec app01 composer install'
+                bat 'docker exec app01 composer install'
             }
         }
 
         stage('Environment Setup') {
             steps {
-                sh '''
+                bat '''
                     docker exec app01 cp .env.example .env || true
                     docker exec app01 php artisan key:generate
                 '''
@@ -31,13 +31,13 @@ pipeline {
 
         stage('Database Migration') {
             steps {
-                sh 'docker exec app01 php artisan migrate'
+                bat 'docker exec app01 php artisan migrate'
             }
         }
 
         stage('Permissions Fix (optional)') {
             steps {
-                sh 'docker exec app01 chmod -R 775 storage bootstrap/cache'
+                bat 'docker exec app01 chmod -R 775 storage bootstrap/cache'
             }
         }
     }
