@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Pull Code') {
             steps {
-                git credentialsId: 'github-token', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
             }
         }
 
