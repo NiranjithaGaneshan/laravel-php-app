@@ -10,7 +10,14 @@ pipeline {
 
         stage('Build and Start Containers') {
             steps {
+                bat 'docker-compose down -v --remove-orphans'
                 bat 'docker-compose up -d --build'
+            }
+        }
+
+        stage('Wait for MySQL') {
+            steps {
+                bat 'timeout /t 20'
             }
         }
 
@@ -22,17 +29,14 @@ pipeline {
 
         stage('Permissions Fix') {
             steps {
-              bat 'docker exec --user root app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
-
+                bat 'docker exec --user root app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
             }
         }
 
         stage('Environment Setup') {
             steps {
-                bat '''
-                    docker exec app01 cp .env.example .env
-                    docker exec app01 php artisan key:generate
-                '''
+                bat 'docker exec app01 cp .env.example .env'
+                bat 'docker exec app01 php artisan key:generate'
             }
         }
 
