@@ -19,6 +19,12 @@ pipeline {
                 bat 'docker exec app01 composer install'
             }
         }
+        stage('Fix Permissions') {
+            steps {
+                bat 'docker exec app01 chmod -R 777 /var/www/html'
+            }
+        }
+
 
         stage('Environment Setup') {
             steps {
