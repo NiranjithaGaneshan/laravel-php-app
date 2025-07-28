@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: app01
     ports:
-      - "8000:8000"
+      - "8000:80"
     volumes:
       - .:/var/www/html
     depends_on:
@@ -16,14 +16,14 @@ services:
   db01:
     image: mysql:8.0
     container_name: db01
+    restart: always
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: laravel_db
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel_db
     volumes:
       - dbdata:/var/lib/mysql
 
 volumes:
   dbdata:
- 
