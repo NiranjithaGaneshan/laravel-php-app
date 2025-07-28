@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-username/your-forked-repo.git'
+                git branch: 'main', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
             }
         }
 
