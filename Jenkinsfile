@@ -17,7 +17,7 @@ pipeline {
 
         stage('Wait for MySQL') {
             steps {
-                bat 'timeout /t 20'
+               bat 'ping -n 20 127.0.0.1 >nul'
             }
         }
 
