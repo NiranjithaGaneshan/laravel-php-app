@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repo') {
             steps {
                 git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
             }
@@ -20,38 +20,37 @@ pipeline {
             }
         }
 
-        stage('Wait for MySQL') {
-    steps {
-        bat '''
-            echo Waiting for MySQL to be ready...
-            docker exec app01 bat -c "until mysqladmin ping -h db01 --silent; do sleep 5; done"
-        '''
-    }
-}
-
+        stage('Wait for MySQL to be Ready') {
+            steps {
+                bat '''
+                    echo Waiting for MySQL to be ready...
+                    docker exec app01 sh -c "until mysqladmin ping -h db01 --silent; do sleep 2; done"
+                '''
+            }
+        }
 
         stage('Composer Install') {
             steps {
-                bat "docker exec %APP_CONTAINER% composer install"
+                bat 'docker exec app01 composer install'
             }
         }
 
         stage('Permissions') {
             steps {
-                bat "docker exec %APP_CONTAINER% chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0"
+                bat 'docker exec app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
             }
         }
 
         stage('App Key Generate') {
             steps {
-                bat "docker exec %APP_CONTAINER% cp .env.example .env || exit 0"
-                bat "docker exec %APP_CONTAINER% php artisan key:generate"
+                bat 'docker exec app01 cp .env.example .env || exit 0'
+                bat 'docker exec app01 php artisan key:generate'
             }
         }
 
         stage('Migrate') {
             steps {
-                bat "docker exec %APP_CONTAINER% php artisan migrate"
+                bat 'docker exec app01 php artisan migrate'
             }
         }
     }
