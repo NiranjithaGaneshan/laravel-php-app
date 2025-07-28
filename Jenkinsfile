@@ -1,54 +1,48 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
-            }
-        }
+    environment {
+        APP_CONTAINER = "app01"
+    }
 
-        stage('Build and Start Containers') {
+    stages {
+        stage('Docker Compose Up') {
             steps {
-                bat 'docker-compose down -v --remove-orphans'
-                bat 'docker-compose up -d --build'
+                bat 'docker-compose down || exit 0'
+                bat 'docker-compose build'
+                bat 'docker-compose up -d'
             }
         }
 
         stage('Wait for MySQL') {
             steps {
-               bat 'ping -n 20 127.0.0.1 >nul'
+                echo 'Waiting for MySQL to be ready...'
+                bat 'timeout /t 25'
             }
         }
 
         stage('Composer Install') {
             steps {
-                bat 'docker exec app01 composer install'
+                bat "docker exec %APP_CONTAINER% composer install"
             }
         }
 
-        stage('Permissions Fix') {
+        stage('Set Permissions') {
             steps {
-                bat 'docker exec --user root app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
+                bat "docker exec %APP_CONTAINER% chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0"
             }
         }
 
-        stage('Environment Setup') {
+        stage('Generate App Key') {
             steps {
-                bat 'docker exec app01 cp .env.example .env'
-                bat 'docker exec app01 php artisan key:generate'
+                bat "docker exec %APP_CONTAINER% cp .env.example .env || exit 0"
+                bat "docker exec %APP_CONTAINER% php artisan key:generate"
             }
         }
 
-        stage('Database Migration') {
+        stage('Run Migrations') {
             steps {
-                bat 'docker exec app01 php artisan migrate'
-            }
-        }
-
-        stage('Permissions Fix (optional)') {
-            steps {
-                bat 'docker exec app01 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache'
+                bat "docker exec %APP_CONTAINER% php artisan migrate"
             }
         }
     }
