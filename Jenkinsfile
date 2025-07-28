@@ -16,8 +16,10 @@ pipeline {
 
         stage('Wait for MySQL') {
             steps {
-                echo 'Waiting for MySQL to be ready...'
-                bat 'timeout /t 25'
+                script {
+                    echo 'Waiting 30 seconds for MySQL...'
+                    sleep(time: 30, unit: 'SECONDS')
+                }
             }
         }
 
