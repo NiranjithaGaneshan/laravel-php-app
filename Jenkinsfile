@@ -24,7 +24,7 @@ pipeline {
     steps {
         bat '''
             echo Waiting for MySQL to be ready...
-            docker exec app01 sh -c "until mysqladmin ping -h db01 --silent; do sleep 5; done"
+            docker exec app01 bat -c "until mysqladmin ping -h db01 --silent; do sleep 5; done"
         '''
     }
 }
