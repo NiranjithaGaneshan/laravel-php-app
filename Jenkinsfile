@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Pull Code') {
+        stage('Checkout Code') {
             steps {
                 git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
             }
@@ -14,40 +14,41 @@ pipeline {
 
         stage('Docker Compose Up') {
             steps {
-                bat 'docker-compose down -v || exit 0'
-                bat 'docker-compose up -d --build'
+                bat 'docker-compose down || exit 0'
+                bat 'docker-compose build'
+                bat 'docker-compose up -d'
             }
         }
 
         stage('Wait for MySQL') {
             steps {
-                echo 'Waiting for MySQL to start...'
-                bat 'timeout /t 30 /nobreak >nul'
+                echo 'Waiting 30 seconds for MySQL to be ready...'
+                sleep(time: 60, unit: 'SECONDS')
             }
         }
 
         stage('Composer Install') {
             steps {
-                bat 'docker exec app01 composer install'
+                bat "docker exec %APP_CONTAINER% composer install"
             }
         }
 
         stage('Permissions') {
             steps {
-                bat 'docker exec app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
+                bat "docker exec %APP_CONTAINER% chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0"
             }
         }
 
         stage('App Key Generate') {
             steps {
-                bat 'docker exec app01 cp .env.example .env || exit 0'
-                bat 'docker exec app01 php artisan key:generate'
+                bat "docker exec %APP_CONTAINER% cp .env.example .env || exit 0"
+                bat "docker exec %APP_CONTAINER% php artisan key:generate"
             }
         }
 
         stage('Migrate') {
             steps {
-                bat 'docker exec app01 php artisan migrate'
+                bat "docker exec %APP_CONTAINER% php artisan migrate"
             }
         }
     }
