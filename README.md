@@ -17,3 +17,6 @@ Run the folling command to install all dependencies of the project: `composer in
 ## Run
 
 Then you can run the following command to start the Application on localhost:8000: `php artisan serve`
+
+### Test Webhook Trigger – 29 July
+
