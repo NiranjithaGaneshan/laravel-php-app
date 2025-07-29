@@ -3,11 +3,10 @@ pipeline {
 
     stages {
         stage('Clone Repo') {
-    steps {
-        git branch: 'main', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
-    }
-}
-
+            steps {
+                git branch: 'main', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
@@ -18,6 +17,13 @@ pipeline {
         stage('Set Permissions') {
             steps {
                 sh 'chmod -R 777 storage bootstrap/cache'
+            }
+        }
+
+        stage('Generate App Key') {
+            steps {
+                sh 'cp .env.example .env || true'
+                sh 'php artisan key:generate'
             }
         }
 
