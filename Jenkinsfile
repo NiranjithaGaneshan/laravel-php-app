@@ -1,57 +1,39 @@
 pipeline {
     agent any
 
-    environment {
-        APP_CONTAINER = "app01"
-    }
-
     stages {
         stage('Clone Repo') {
-            steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/NiranjithaGaneshan/laravel-php-app.git'
-            }
-        }
-
-        stage('Docker Compose Up') {
-            steps {
-                bat 'docker-compose down || exit 0'
-                bat 'docker-compose build'
-                bat 'docker-compose up -d'
-            }
-        }
-
-      stage('Wait for MySQL to be Ready') {
     steps {
-        echo 'Waiting for MySQL to be ready...'
-        bat 'docker exec db01 bash -c "until mysql -h db01 -u root -proot -e \\"SELECT 1\\"; do echo Waiting for MySQL...; sleep 2; done"'
+        git branch: 'main', url: 'https://github.com/your-username/your-repo.git'
     }
 }
 
 
-
-        stage('Composer Install') {
+        stage('Install Dependencies') {
             steps {
-                bat 'docker exec app01 composer install'
+                sh 'composer install'
             }
         }
 
-        stage('Permissions') {
+        stage('Set Permissions') {
             steps {
-                bat 'docker exec app01 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || exit 0'
+                sh 'chmod -R 777 storage bootstrap/cache'
             }
         }
 
-        stage('App Key Generate') {
+        stage('Run Tests') {
             steps {
-                bat 'docker exec app01 cp .env.example .env || exit 0'
-                bat 'docker exec app01 php artisan key:generate'
+                sh './vendor/bin/phpunit || true'
             }
         }
 
-        stage('Migrate') {
+        stage('Build Docker') {
             steps {
-                bat 'docker exec app01 php artisan migrate'
+                sh 'docker-compose down || true'
+                sh 'docker-compose build'
+                sh 'docker-compose up -d'
             }
         }
     }
 }
+

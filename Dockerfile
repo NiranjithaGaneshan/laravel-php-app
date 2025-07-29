@@ -1,22 +1,25 @@
-FROM php:8.0-apache
+# Use official PHP image with Apache
+FROM php:8.1-apache
 
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev && \
-    docker-php-ext-install pdo pdo_mysql zip
+# Enable required PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-RUN a2enmod rewrite
-
-WORKDIR /var/www/html
-
-COPY . .
-
-# 👇 Fix for Git "dubious ownership"
-RUN git config --global --add safe.directory /var/www/html
-
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Set working directory
+WORKDIR /var/www/html
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Copy Laravel files
+COPY . .
 
-EXPOSE 80
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Copy custom Apache config (optional)
+COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+
